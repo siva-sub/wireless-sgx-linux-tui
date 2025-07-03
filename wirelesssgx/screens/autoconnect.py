@@ -101,7 +101,9 @@ class AutoConnectScreen(Screen):
             )
             
             if success:
-                status.update("✅ Network configured! Attempting to connect...", classes="success")
+                status.update("✅ Network configured! Attempting to connect...")
+                status.set_class(False, "success", "info", "error")
+                status.add_class("success")
                 try:
                     loading.remove()  # Hide loading indicator
                 except:
@@ -121,24 +123,34 @@ class AutoConnectScreen(Screen):
                     )
                     
                     if result.returncode == 0:
-                        status.update("✅ Successfully connected to Wireless@SGx!", classes="success")
+                        status.update("✅ Successfully connected to Wireless@SGx!")
+                        status.set_class(False, "success", "info", "error")
+                        status.add_class("success")
                         await asyncio.sleep(2)  # Show success message for 2 seconds
                         self.dismiss()  # Return to welcome screen
                     else:
-                        status.update("✅ Network configured. Will connect when in range.", classes="success")
+                        status.update("✅ Network configured. Will connect when in range.")
+                        status.set_class(False, "success", "info", "error")
+                        status.add_class("success")
                         await asyncio.sleep(2)  # Show message for 2 seconds
                         self.dismiss()  # Return to welcome screen
                 except Exception:
-                    status.update("✅ Network configured. Will connect when in range.", classes="success")
+                    status.update("✅ Network configured. Will connect when in range.")
+                    status.set_class(False, "success", "info", "error")
+                    status.add_class("success")
                     await asyncio.sleep(2)  # Show message for 2 seconds
                     self.dismiss()  # Return to welcome screen
             else:
-                status.update("❌ Failed to configure network", classes="error")
+                status.update("❌ Failed to configure network")
+                status.set_class(False, "success", "info", "error")
+                status.add_class("error")
                 await asyncio.sleep(2)  # Show error message for 2 seconds
                 
         except Exception as e:
             try:
-                status.update(f"❌ Error: {str(e)}", classes="error")
+                status.update(f"❌ Error: {str(e)}")
+                status.set_class(False, "success", "info", "error")
+                status.add_class("error")
                 await asyncio.sleep(2)  # Show error message for 2 seconds
             except:
                 pass

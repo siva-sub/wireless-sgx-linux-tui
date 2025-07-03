@@ -184,17 +184,19 @@ class CredentialsScreen(Screen):
                 Static(f"Error loading credentials: {str(e)}", classes="error-status")
             )
     
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
         try:
             if event.button.id == "back":
-                self.app.pop_screen()
+                await self.app.pop_screen()
             elif event.button.id == "connect":
                 if self.credentials:
                     asyncio.create_task(self.connect_now())
                 else:
                     status = self.query_one("#status", Static)
-                    status.update("❌ No credentials to connect with", classes="error-status")
+                    status.update("❌ No credentials to connect with")
+                    status.set_class(False, "success-status", "info-status", "error-status")
+                    status.add_class("error-status")
             elif event.button.id == "test":
                 asyncio.create_task(self.test_connection())
             elif event.button.id == "delete":
@@ -202,11 +204,15 @@ class CredentialsScreen(Screen):
                     asyncio.create_task(self.delete_credentials())
                 else:
                     status = self.query_one("#status", Static)
-                    status.update("❌ No credentials to delete", classes="error-status")
+                    status.update("❌ No credentials to delete")
+                    status.set_class(False, "success-status", "info-status", "error-status")
+                    status.add_class("error-status")
         except Exception as e:
             try:
                 status = self.query_one("#status", Static)
-                status.update(f"❌ Error: {str(e)}", classes="error-status")
+                status.update(f"❌ Error: {str(e)}")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("error-status")
             except:
                 pass
     
@@ -216,7 +222,9 @@ class CredentialsScreen(Screen):
             return
             
         status = self.query_one("#status", Static)
-        status.update("🔄 Connecting...", classes="info-status")
+        status.update("🔄 Connecting...")
+        status.set_class(False, "success-status", "info-status", "error-status")
+        status.add_class("info-status")
         
         try:
             # Configure network
@@ -228,7 +236,9 @@ class CredentialsScreen(Screen):
             )
             
             if success:
-                status.update("✅ Network configured! Connecting...", classes="success-status")
+                status.update("✅ Network configured! Connecting...")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("success-status")
                 
                 # Try to connect with nmcli if available
                 try:
@@ -238,21 +248,33 @@ class CredentialsScreen(Screen):
                         text=True
                     )
                     if result.returncode == 0:
-                        status.update("✅ Connected to Wireless@SGx!", classes="success-status")
+                        status.update("✅ Connected to Wireless@SGx!")
+                        status.set_class(False, "success-status", "info-status", "error-status")
+                        status.add_class("success-status")
                     else:
-                        status.update("✅ Network configured. Will connect when in range.", classes="success-status")
+                        status.update("✅ Network configured. Will connect when in range.")
+                        status.set_class(False, "success-status", "info-status", "error-status")
+                        status.add_class("success-status")
                 except Exception:
-                    status.update("✅ Network configured. Will connect when in range.", classes="success-status")
+                    status.update("✅ Network configured. Will connect when in range.")
+                    status.set_class(False, "success-status", "info-status", "error-status")
+                    status.add_class("success-status")
             else:
-                status.update("❌ Failed to configure network", classes="error-status")
+                status.update("❌ Failed to configure network")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("error-status")
                 
         except Exception as e:
-            status.update(f"❌ Error: {str(e)}", classes="error-status")
+            status.update(f"❌ Error: {str(e)}")
+            status.set_class(False, "success-status", "info-status", "error-status")
+            status.add_class("error-status")
     
     async def test_connection(self) -> None:
         """Test current connection status"""
         status = self.query_one("#status", Static)
-        status.update("🔍 Testing connection...", classes="info-status")
+        status.update("🔍 Testing connection...")
+        status.set_class(False, "success-status", "info-status", "error-status")
+        status.add_class("info-status")
         
         try:
             connected = await asyncio.get_event_loop().run_in_executor(
@@ -261,12 +283,18 @@ class CredentialsScreen(Screen):
             )
             
             if connected:
-                status.update("✅ Connected to Wireless@SGx", classes="success-status")
+                status.update("✅ Connected to Wireless@SGx")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("success-status")
             else:
-                status.update("❌ Not connected to Wireless@SGx", classes="error-status")
+                status.update("❌ Not connected to Wireless@SGx")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("error-status")
                 
         except Exception as e:
-            status.update(f"❌ Error: {str(e)}", classes="error-status")
+            status.update(f"❌ Error: {str(e)}")
+            status.set_class(False, "success-status", "info-status", "error-status")
+            status.add_class("error-status")
     
     async def delete_credentials(self) -> None:
         """Delete saved credentials with confirmation"""
@@ -277,7 +305,9 @@ class CredentialsScreen(Screen):
             return
             
         if not self.credentials:
-            status.update("❌ No credentials to delete", classes="error-status")
+            status.update("❌ No credentials to delete")
+            status.set_class(False, "success-status", "info-status", "error-status")
+            status.add_class("error-status")
             return
         
         try:
@@ -297,7 +327,9 @@ class CredentialsScreen(Screen):
                 except:
                     pass
                 
-                status.update("✅ Credentials deleted successfully", classes="success-status")
+                status.update("✅ Credentials deleted successfully")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("success-status")
                 
                 # Clear the stored credentials
                 self.credentials = None
@@ -305,7 +337,11 @@ class CredentialsScreen(Screen):
                 # Reload display
                 await self.load_credentials()
             else:
-                status.update("❌ Failed to delete credentials", classes="error-status")
+                status.update("❌ Failed to delete credentials")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("error-status")
                 
         except Exception as e:
-            status.update(f"❌ Error: {str(e)}", classes="error-status")
+            status.update(f"❌ Error: {str(e)}")
+            status.set_class(False, "success-status", "info-status", "error-status")
+            status.add_class("error-status")

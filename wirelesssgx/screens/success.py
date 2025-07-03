@@ -121,23 +121,23 @@ class SuccessScreen(Screen):
             )
             
             if saved:
-                self.query_one("#network-status").update(
-                    "💾 Credentials saved securely. Auto-connecting...",
-                    classes="info-status"
-                )
+                network_status = self.query_one("#network-status")
+                network_status.update("💾 Credentials saved securely. Auto-connecting...")
+                network_status.set_class(False, "success-status", "info-status", "error-status")
+                network_status.add_class("info-status")
                 # Auto-connect after saving
                 await asyncio.sleep(1)
                 await self.configure_network()
             else:
-                self.query_one("#network-status").update(
-                    "⚠️ Could not save credentials",
-                    classes="error-status"
-                )
+                network_status = self.query_one("#network-status")
+                network_status.update("⚠️ Could not save credentials")
+                network_status.set_class(False, "success-status", "info-status", "error-status")
+                network_status.add_class("error-status")
         except Exception as e:
-            self.query_one("#network-status").update(
-                f"⚠️ Could not save credentials: {str(e)}",
-                classes="error-status"
-            )
+            network_status = self.query_one("#network-status")
+            network_status.update(f"⚠️ Could not save credentials: {str(e)}")
+            network_status.set_class(False, "success-status", "info-status", "error-status")
+            network_status.add_class("error-status")
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
@@ -152,14 +152,18 @@ class SuccessScreen(Screen):
             # Log error but don't crash
             try:
                 status = self.query_one("#network-status")
-                status.update(f"❌ Error: {str(e)}", classes="error-status")
+                status.update(f"❌ Error: {str(e)}")
+                status.set_class(False, "success-status", "info-status", "error-status")
+                status.add_class("error-status")
             except:
                 pass
     
     async def configure_network(self) -> None:
         """Configure network automatically"""
         status_widget = self.query_one("#network-status")
-        status_widget.update("🔧 Configuring network...", classes="info-status")
+        status_widget.update("🔧 Configuring network...")
+        status_widget.set_class(False, "success-status", "info-status", "error-status")
+        status_widget.add_class("info-status")
         
         try:
             # Run configuration in thread
@@ -172,10 +176,9 @@ class SuccessScreen(Screen):
             )
             
             if success:
-                status_widget.update(
-                    "✅ Network configured successfully! You should be connected soon.",
-                    classes="success-status"
-                )
+                status_widget.update("✅ Network configured successfully! You should be connected soon.")
+                status_widget.set_class(False, "success-status", "info-status", "error-status")
+                status_widget.add_class("success-status")
                 
                 # Test connection after a delay
                 await asyncio.sleep(3)
@@ -185,26 +188,22 @@ class SuccessScreen(Screen):
                 )
                 
                 if connected:
-                    status_widget.update(
-                        "🌐 Connected to Wireless@SGx!",
-                        classes="success-status"
-                    )
+                    status_widget.update("🌐 Connected to Wireless@SGx!")
+                    status_widget.set_class(False, "success-status", "info-status", "error-status")
+                    status_widget.add_class("success-status")
             else:
-                status_widget.update(
-                    "❌ Auto-configuration failed. Use manual instructions.",
-                    classes="error-status"
-                )
+                status_widget.update("❌ Auto-configuration failed. Use manual instructions.")
+                status_widget.set_class(False, "success-status", "info-status", "error-status")
+                status_widget.add_class("error-status")
                 
         except NetworkConfigError as e:
-            status_widget.update(
-                f"❌ Configuration error: {str(e)}",
-                classes="error-status"
-            )
+            status_widget.update(f"❌ Configuration error: {str(e)}")
+            status_widget.set_class(False, "success-status", "info-status", "error-status")
+            status_widget.add_class("error-status")
         except Exception as e:
-            status_widget.update(
-                f"❌ Unexpected error: {str(e)}",
-                classes="error-status"
-            )
+            status_widget.update(f"❌ Unexpected error: {str(e)}")
+            status_widget.set_class(False, "success-status", "info-status", "error-status")
+            status_widget.add_class("error-status")
     
     async def show_manual_instructions(self) -> None:
         """Show manual configuration instructions"""

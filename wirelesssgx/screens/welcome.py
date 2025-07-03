@@ -166,3 +166,32 @@ class WelcomeScreen(Screen):
                     await self.on_button_pressed(fake_event)
                 except Exception as e:
                     logger.error(f"Manual button test failed: {e}")
+    
+    def _log_button_states(self, context: str):
+        """Helper to log detailed button states"""
+        if DEBUG_MODE:
+            logger.info(f"=== BUTTON STATES ({context}) ===")
+            logger.info(f"Screen Instance ID: {id(self)}")
+            logger.info(f"Screen is attached: {self.is_attached}")
+            logger.info(f"Current focus: {self.app.focused}")
+            
+            # Log all buttons
+            try:
+                buttons = self.query(Button)
+                logger.info(f"Found {len(buttons)} buttons:")
+                for button in buttons:
+                    logger.info(f"  Button #{button.id}:")
+                    logger.info(f"    disabled: {button.disabled}")
+                    logger.info(f"    focusable: {button.focusable}")
+                    logger.info(f"    can_focus: {button.can_focus}")
+                    logger.info(f"    has_focus: {button.has_focus}")
+                    logger.info(f"    is_attached: {button.is_attached}")
+                    logger.info(f"    display: {button.display}")
+                    logger.info(f"    visible: {button.visible}")
+                    logger.info(f"    widget_id: {id(button)}")
+            except Exception as e:
+                logger.error(f"Error logging button states: {e}")
+            
+            logger.info("=== END BUTTON STATES ===")
+        
+        self.screen_instance_id = id(self)
