@@ -81,7 +81,7 @@ class RegisterScreen(Screen):
                         placeholder="Enter Singapore mobile number",
                         id="mobile",
                         validators=[
-                            Regex(r"^65[0-9]{7}$", failure_description="Must be Singapore number (65XXXXXXXX)")
+                            Regex(r"^65[0-9]{8}$", failure_description="Must be Singapore number (65XXXXXXXX)")
                         ]
                     ),
                     classes="field-group"
