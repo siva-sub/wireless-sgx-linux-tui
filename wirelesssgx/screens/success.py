@@ -139,13 +139,13 @@ class SuccessScreen(Screen):
                 classes="error-status"
             )
     
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
         try:
             if event.button.id == "manual":
-                self.show_manual_instructions()
+                await self.show_manual_instructions()
             elif event.button.id == "view-creds":
-                self.app.push_screen("credentials")
+                await self.app.push_screen("credentials")
             elif event.button.id == "done":
                 self.app.exit()
         except Exception as e:
@@ -206,7 +206,7 @@ class SuccessScreen(Screen):
                 classes="error-status"
             )
     
-    def show_manual_instructions(self) -> None:
+    async def show_manual_instructions(self) -> None:
         """Show manual configuration instructions"""
         instructions = self.network_manager.get_manual_config_instructions(
             self.credentials["username"],
@@ -214,4 +214,4 @@ class SuccessScreen(Screen):
         )
         
         # Create a popup or new screen with instructions
-        self.app.push_screen("manual_instructions", instructions=instructions)
+        await self.app.push_screen("manual_instructions", instructions=instructions)

@@ -183,14 +183,30 @@ class OTPScreen(Screen):
         finally:
             self.requesting = False
     
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
         if event.button.id == "back":
-            self.app.pop_screen()
+            await self.app.pop_screen()
         elif event.button.id == "verify":
-            asyncio.create_task(self.verify_otp())
+            # Disable button to prevent multiple clicks
+            event.button.disabled = True
+            try:
+                await self.verify_otp()
+            finally:
+                # Re-enable button if we're still on this screen
+                if not self.is_attached:
+                    return
+                event.button.disabled = False
         elif event.button.id == "resend":
-            asyncio.create_task(self.request_otp())
+            # Disable button to prevent multiple clicks
+            event.button.disabled = True
+            try:
+                await self.request_otp()
+            finally:
+                # Re-enable button if we're still on this screen
+                if not self.is_attached:
+                    return
+                event.button.disabled = False
     
     async def verify_otp(self) -> None:
         """Verify OTP and get credentials"""
@@ -236,7 +252,21 @@ class OTPScreen(Screen):
                 "isp": self.registration_data["isp"]
             }
             
-            self.app.push_screen("success", credentials=credentials)
+            try:
+                # Navigate to success screen
+                await self.app.push_screen("success", credentials=credentials)
+            except Exception as e:
+                error_msg.update(f"Failed to navigate to success screen: {str(e)}")
+                # Try alternative approach - save credentials and exit
+                try:
+                    from ..storage import SecureStorage
+                    storage = SecureStorage()
+                    storage.save_credentials(username, password, self.registration_data["isp"])
+                    error_msg.update("✅ Credentials saved! Please restart the app.")
+                    await asyncio.sleep(2)  # Show message briefly
+                    self.app.exit()
+                except Exception as save_error:
+                    error_msg.update(f"Error saving credentials: {str(save_error)}")
             
         except WirelessSGXError as e:
             error_msg.update(f"Verification failed: {str(e)}")

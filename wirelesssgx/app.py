@@ -53,14 +53,14 @@ class ManualInstructionsScreen(Screen):
             )
         )
     
-    def on_key(self, event) -> None:
+    async def on_key(self, event) -> None:
         """Close on ESC"""
         if event.key == "escape":
-            self.app.pop_screen()
+            await self.app.pop_screen()
     
-    def on_click(self) -> None:
+    async def on_click(self) -> None:
         """Close on click"""
-        self.app.pop_screen()
+        await self.app.pop_screen()
 
 
 class WirelessSGXApp(App):
@@ -87,24 +87,19 @@ class WirelessSGXApp(App):
         self.storage = SecureStorage()
         self.network_manager = NetworkManager()
     
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         """Show welcome screen on start"""
-        self.push_screen("welcome")
+        await self.push_screen("welcome")
     
-    def action_auto_connect(self) -> None:
+    async def action_auto_connect(self) -> None:
         """Auto-connect with saved credentials"""
-        # Use Textual's call_later to ensure proper async context
-        self.call_later(self._auto_connect_sync)
-    
-    def _auto_connect_sync(self) -> None:
-        """Synchronous wrapper for auto-connect"""
         try:
-            # Check for saved credentials synchronously
+            # Check for saved credentials
             creds = self.storage.get_credentials()
             
             if not creds:
                 # No saved credentials
-                self.push_screen(
+                await self.push_screen(
                     "manual_instructions",
                     instructions="❌ No saved credentials found!\n\n"
                                "Please use 'New Registration' or 'Retrieve Existing Account'\n"
@@ -113,13 +108,13 @@ class WirelessSGXApp(App):
                 return
             
             # Show auto-connect screen using the registered screen
-            self.push_screen("autoconnect", credentials=creds)
+            await self.push_screen("autoconnect", credentials=creds)
             
         except Exception as e:
             # Handle any errors gracefully with detailed error info
             import traceback
             error_details = traceback.format_exc()
-            self.push_screen(
+            await self.push_screen(
                 "manual_instructions", 
                 instructions=f"❌ Error during auto-connect:\n\n{str(e)}\n\n"
                            f"Error Type: {type(e).__name__}\n\n"
@@ -128,7 +123,7 @@ class WirelessSGXApp(App):
             )
     
     
-    def push_screen(self, screen: str | Screen, **kwargs) -> None:
+    async def push_screen(self, screen: str | Screen, **kwargs) -> None:
         """Push a screen with parameters"""
         try:
             if isinstance(screen, str):
@@ -144,7 +139,7 @@ class WirelessSGXApp(App):
                         raise ValueError("AutoConnectScreen requires 'credentials' parameter")
                     
                     screen_instance = screen_class(**kwargs)
-                    super().push_screen(screen_instance)
+                    await super().push_screen(screen_instance)
                 else:
                     # Screen not found, show error
                     self.bell()
@@ -152,7 +147,7 @@ class WirelessSGXApp(App):
                         self.log.error(f"Screen '{screen}' not found in SCREENS dictionary")
                     raise ValueError(f"Unknown screen: {screen}")
             else:
-                super().push_screen(screen)
+                await super().push_screen(screen)
         except Exception as e:
             # Handle any errors during screen creation or pushing
             import traceback
@@ -170,7 +165,7 @@ class WirelessSGXApp(App):
                                f"Stack Trace:\n{error_trace}\n\n"
                                "Please report this issue if it persists."
                 )
-                super().push_screen(error_screen)
+                await super().push_screen(error_screen)
             except:
                 pass  # Last resort - don't crash the app
 

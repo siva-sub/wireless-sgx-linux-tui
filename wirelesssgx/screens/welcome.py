@@ -68,19 +68,19 @@ class WelcomeScreen(Screen):
         )
         yield Footer()
     
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
         try:
             button_id = event.button.id
             
             if button_id == "new-registration":
-                self.app.push_screen("register", retrieve_mode=False)
+                await self.app.push_screen("register", retrieve_mode=False)
             elif button_id == "retrieve-account":
-                self.app.push_screen("register", retrieve_mode=True)
+                await self.app.push_screen("register", retrieve_mode=True)
             elif button_id == "auto-connect":
-                self.app.action_auto_connect()
+                await self.app.action_auto_connect()
             elif button_id == "manage-credentials":
-                self.app.push_screen("credentials")
+                await self.app.push_screen("credentials")
             elif button_id == "exit":
                 self.app.exit()
         except Exception as e:

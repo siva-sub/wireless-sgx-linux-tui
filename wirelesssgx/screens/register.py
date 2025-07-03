@@ -121,14 +121,14 @@ class RegisterScreen(Screen):
         """Focus first input on mount"""
         self.query_one("#mobile").focus()
     
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
         if event.button.id == "back":
-            self.app.pop_screen()
+            await self.app.pop_screen()
         elif event.button.id == "continue":
-            self.validate_and_continue()
+            await self.validate_and_continue()
     
-    def validate_and_continue(self) -> None:
+    async def validate_and_continue(self) -> None:
         """Validate inputs and proceed"""
         mobile_input = self.query_one("#mobile", Input)
         dob_input = self.query_one("#dob", Input)
@@ -169,4 +169,4 @@ class RegisterScreen(Screen):
             "retrieve_mode": self.retrieve_mode
         }
         
-        self.app.push_screen("otp", registration_data=registration_data)
+        await self.app.push_screen("otp", registration_data=registration_data)
