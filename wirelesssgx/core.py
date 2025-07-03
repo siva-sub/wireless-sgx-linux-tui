@@ -97,13 +97,14 @@ class WirelessSGXClient:
             "mobile": mobile,
             "nationality": country,
             "email": email,
-            "tid": self.transid,
+            "tid": self.transid.decode() if isinstance(self.transid, bytes) else self.transid,
         }
         
         # Debug logging
         import json
+        debug_params = {k: (v.decode() if isinstance(v, bytes) else v) for k, v in params.items() if k != 'api_password'}
         print(f"DEBUG: Making request to {self.config['essa_url']}")
-        print(f"DEBUG: With params: {json.dumps({k: v for k, v in params.items() if k != 'api_password'}, indent=2)}")
+        print(f"DEBUG: With params: {json.dumps(debug_params, indent=2)}")
         
         try:
             r = requests.get(self.config["essa_url"], params=params, timeout=30)
@@ -139,7 +140,7 @@ class WirelessSGXClient:
             "mobile": mobile,
             "otp": otp,
             "success_code": success_code,
-            "tid": self.transid
+            "tid": self.transid.decode() if isinstance(self.transid, bytes) else self.transid
         }
         
         try:
