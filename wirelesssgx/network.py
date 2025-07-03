@@ -95,7 +95,12 @@ class NetworkManager:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return True
         except subprocess.CalledProcessError as e:
-            raise NetworkConfigError(f"Failed to configure NetworkManager: {e.stderr}")
+            # Log the error but don't raise - return False instead
+            print(f"NetworkManager configuration error: {e.stderr}")
+            return False
+        except Exception as e:
+            print(f"Unexpected error configuring NetworkManager: {str(e)}")
+            return False
     
     def _configure_systemd_networkd(self, username: str, password: str) -> bool:
         """Configure systemd-networkd with wpa_supplicant"""

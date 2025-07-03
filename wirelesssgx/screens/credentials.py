@@ -6,6 +6,7 @@ from textual.widgets import Static, Button, Header, Footer, Label
 from textual.screen import Screen
 from textual.reactive import reactive
 import asyncio
+import subprocess
 from typing import Optional, Dict
 
 from ..storage import SecureStorage
@@ -210,14 +211,16 @@ class CredentialsScreen(Screen):
                 
                 # Try to connect with nmcli if available
                 try:
-                    import subprocess
-                    subprocess.run(
+                    result = subprocess.run(
                         ["nmcli", "connection", "up", "Wireless@SGx"],
                         capture_output=True,
-                        check=True
+                        text=True
                     )
-                    status.update("✅ Connected to Wireless@SGx!", classes="success-status")
-                except:
+                    if result.returncode == 0:
+                        status.update("✅ Connected to Wireless@SGx!", classes="success-status")
+                    else:
+                        status.update("✅ Network configured. Will connect when in range.", classes="success-status")
+                except Exception:
                     status.update("✅ Network configured. Will connect when in range.", classes="success-status")
             else:
                 status.update("❌ Failed to configure network", classes="error-status")

@@ -98,8 +98,8 @@ class SuccessScreen(Screen):
                 ),
                 Static("", id="network-status"),
                 Horizontal(
-                    Button("Configure Network", variant="primary", id="configure"),
                     Button("Show Manual Instructions", variant="default", id="manual"),
+                    Button("View Credentials", variant="default", id="view-creds"), 
                     Button("Done", variant="success", id="done"),
                     id="button-container"
                 ),
@@ -141,10 +141,10 @@ class SuccessScreen(Screen):
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
-        if event.button.id == "configure":
-            asyncio.create_task(self.configure_network())
-        elif event.button.id == "manual":
+        if event.button.id == "manual":
             self.show_manual_instructions()
+        elif event.button.id == "view-creds":
+            self.app.push_screen("credentials")
         elif event.button.id == "done":
             self.app.exit()
     

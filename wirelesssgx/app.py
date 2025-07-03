@@ -176,9 +176,11 @@ class WirelessSGXApp(App):
                             await asyncio.sleep(1)
                             result = await asyncio.get_event_loop().run_in_executor(
                                 None,
-                                subprocess.run,
-                                ["nmcli", "connection", "up", "Wireless@SGx"],
-                                {"capture_output": True, "text": True}
+                                lambda: subprocess.run(
+                                    ["nmcli", "connection", "up", "Wireless@SGx"],
+                                    capture_output=True,
+                                    text=True
+                                )
                             )
                             
                             if result.returncode == 0:
