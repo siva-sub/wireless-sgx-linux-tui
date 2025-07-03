@@ -132,8 +132,16 @@ class WirelessSGXApp(App):
 
 def main():
     """Main entry point"""
-    app = WirelessSGXApp()
-    app.run()
+    import sys
+    
+    # Check if CLI commands are being used
+    if len(sys.argv) > 1:
+        from .cli import cli
+        cli()
+    else:
+        # Launch TUI app
+        app = WirelessSGXApp()
+        app.run()
 
 
 if __name__ == "__main__":

@@ -76,6 +76,40 @@ curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/mast
 
 5. **Done!** Your credentials are saved and network is configured automatically.
 
+## CLI Commands
+
+After setting up, you can use these commands to manage your connection:
+
+### View Saved Credentials
+```bash
+wirelesssgx show
+```
+Shows your saved username, ISP, and auto-connect status.
+
+### Connect Manually
+```bash
+wirelesssgx connect
+```
+Connect to Wireless@SGx using your saved credentials.
+
+### Enable Auto-Connect
+```bash
+wirelesssgx autoconnect
+```
+Configure your system to automatically connect to Wireless@SGx when in range.
+
+### Check Connection Status
+```bash
+wirelesssgx status
+```
+Check if you're currently connected to Wireless@SGx.
+
+### Forget Credentials
+```bash
+wirelesssgx forget
+```
+Delete your saved credentials and network configuration.
+
 ## What is a TUI?
 
 This application uses a Text User Interface (TUI) - it runs in your terminal but provides a graphical-like experience with:
