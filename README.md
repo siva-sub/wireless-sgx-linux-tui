@@ -35,6 +35,20 @@ pip install -e .
 wirelesssgx
 ```
 
+## Updating
+
+To update to the latest version:
+```bash
+curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/master/update.sh | bash
+```
+
+## Uninstalling
+
+To completely remove Wireless@SGx:
+```bash
+curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/master/uninstall.sh | bash
+```
+
 ## Usage
 
 1. **Launch the application**:
