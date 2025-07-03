@@ -57,6 +57,7 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
     echo "Creating virtual environment..."
     python3 -m venv ~/.wirelesssgx-venv
     source ~/.wirelesssgx-venv/bin/activate
+    venv_install=true
     
     # Add activation to shell rc file
     shell_rc=""
@@ -71,6 +72,8 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
         echo "# Wireless@SGx virtual environment" >> $shell_rc
         echo "alias wirelesssgx='source ~/.wirelesssgx-venv/bin/activate && wirelesssgx'" >> $shell_rc
     fi
+else
+    venv_install=false
 fi
 
 # Install from PyPI or GitHub
@@ -115,11 +118,31 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
     desktop_file=~/.local/share/applications/wirelesssgx.desktop
     mkdir -p ~/.local/share/applications
     
+    # Create wrapper script for venv installations
+    if [ "$venv_install" = true ]; then
+        wrapper_dir=~/.local/bin
+        mkdir -p $wrapper_dir
+        wrapper_script=$wrapper_dir/wirelesssgx-launcher
+        
+        cat > $wrapper_script << 'EOF'
+#!/bin/bash
+source ~/.wirelesssgx-venv/bin/activate
+exec wirelesssgx "$@"
+EOF
+        chmod +x $wrapper_script
+        
+        # Use wrapper in desktop entry
+        exec_cmd=$wrapper_script
+    else
+        # Direct execution for non-venv installs
+        exec_cmd=wirelesssgx
+    fi
+    
     cat > $desktop_file << EOF
 [Desktop Entry]
 Name=Wireless@SGx
 Comment=Connect to Singapore's public WiFi
-Exec=wirelesssgx
+Exec=$exec_cmd
 Icon=network-wireless
 Terminal=true
 Type=Application
