@@ -40,6 +40,21 @@ class AutoConnectScreen(Screen):
         margin: 1 0;
         align: center middle;
     }
+    
+    #title {
+        text-align: center;
+        text-style: bold;
+        margin-bottom: 2;
+    }
+    
+    #subtitle {
+        text-align: center;
+        margin-bottom: 2;
+    }
+    
+    #back {
+        margin-top: 2;
+    }
     """
     
     def __init__(self, credentials: Dict[str, str]):
@@ -53,11 +68,11 @@ class AutoConnectScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
             Vertical(
-                Static("🔄 Auto-Connect", style="text-align: center; font-weight: bold; margin-bottom: 2;"),
-                Static(f"Using saved credentials for: {self.credentials['username']}", style="text-align: center; margin-bottom: 2;"),
+                Static("🔄 Auto-Connect", id="title"),
+                Static(f"Using saved credentials for: {self.credentials['username']}", id="subtitle"),
                 LoadingIndicator(id="loading"),
                 Static("Configuring network...", id="status-text", classes="info"),
-                Button("Back", id="back", style="margin-top: 2;"),
+                Button("Back", id="back"),
                 id="status-container"
             )
         )
