@@ -229,17 +229,36 @@ class WirelessSGXApp(App):
     async def pop_screen(self) -> None:
         """Override pop_screen to add debugging"""
         if self.debug_mode:
-            logger.info(f"pop_screen called. Current stack size: {len(self.screen_stack)}")
-            logger.info(f"Current screen: {self.screen.__class__.__name__}")
+            logger.info("=" * 50)
+            logger.info("POP_SCREEN CALLED")
+            logger.info(f"Current stack size: {len(self.screen_stack)}")
+            logger.info(f"Current screen: {self.screen.__class__.__name__} (ID: {id(self.screen)})")
+            logger.info(f"Current focus: {self.focused}")
+            
             if len(self.screen_stack) > 1:
-                logger.info(f"Will return to: {self.screen_stack[-2].__class__.__name__}")
+                returning_to = self.screen_stack[-2]
+                logger.info(f"Will return to: {returning_to.__class__.__name__} (ID: {id(returning_to)})")
+                
+                # If returning to WelcomeScreen, log its current button states
+                if hasattr(returning_to, '_log_button_states'):
+                    logger.info("Logging target screen button states BEFORE pop:")
+                    returning_to._log_button_states("BEFORE_POP_RETURN")
         
         result = await super().pop_screen()
         
         if self.debug_mode:
-            logger.info(f"After pop_screen. New stack size: {len(self.screen_stack)}")
-            logger.info(f"Current screen: {self.screen.__class__.__name__}")
+            logger.info("AFTER POP_SCREEN:")
+            logger.info(f"New stack size: {len(self.screen_stack)}")
+            logger.info(f"Current screen: {self.screen.__class__.__name__} (ID: {id(self.screen)})")
             logger.info(f"Current focus: {self.focused}")
+            logger.info(f"Screen is attached: {self.screen.is_attached}")
+            
+            # If we're back to WelcomeScreen, log its button states
+            if hasattr(self.screen, '_log_button_states'):
+                logger.info("Logging current screen button states AFTER pop:")
+                self.screen._log_button_states("AFTER_POP_RETURN")
+            
+            logger.info("=" * 50)
         
         return result
 

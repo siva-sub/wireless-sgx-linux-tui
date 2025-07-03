@@ -140,3 +140,29 @@ class WelcomeScreen(Screen):
             if hasattr(self.app, 'log'):
                 self.app.log.error(f"Error handling button press: {str(e)}")
             self.app.bell()
+    
+    async def on_click(self, event) -> None:
+        """Debug click events"""
+        if DEBUG_MODE:
+            logger.info(f"CLICK EVENT on WelcomeScreen: {event}")
+            logger.info(f"Click target: {event.widget if hasattr(event, 'widget') else 'unknown'}")
+            self._log_button_states("ON_CLICK")
+    
+    async def on_key(self, event) -> None:
+        """Debug key events"""
+        if DEBUG_MODE:
+            logger.info(f"KEY EVENT on WelcomeScreen: {event.key}")
+            if event.key == 'ctrl+d':  # Debug key
+                logger.info("Manual debug trigger!")
+                self._log_button_states("MANUAL_DEBUG_TRIGGER")
+                
+                # Try to manually trigger button click
+                try:
+                    button = self.query_one("#new-registration", Button)
+                    logger.info(f"Manual button trigger test...")
+                    # Simulate a button press
+                    from textual.widgets import Button
+                    fake_event = Button.Pressed(button)
+                    await self.on_button_pressed(fake_event)
+                except Exception as e:
+                    logger.error(f"Manual button test failed: {e}")
