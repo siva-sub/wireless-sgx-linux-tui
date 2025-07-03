@@ -11,10 +11,10 @@ echo "=================================="
 echo
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+NC=$'\033[0m' # No Color
 
 # Check if running on Linux
 if [[ "$OSTYPE" != "linux-gnu"* ]]; then
@@ -51,7 +51,7 @@ fi
 
 # Create virtual environment (optional but recommended)
 echo
-read -p "Do you want to install in a virtual environment? (recommended) [Y/n] " -n 1 -r
+read -p "Do you want to install in a virtual environment? (recommended) [Y/n] " -n 1 -r < /dev/tty
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
     echo "Creating virtual environment..."
@@ -78,7 +78,7 @@ echo
 echo "Installation method:"
 echo "1) Install from PyPI (stable)"
 echo "2) Install from GitHub (latest)"
-read -p "Choose [1-2]: " install_method
+read -p "Choose [1-2]: " install_method < /dev/tty
 
 case $install_method in
     1)
@@ -109,7 +109,7 @@ fi
 
 # Create desktop entry
 echo
-read -p "Create desktop entry for application launcher? [Y/n] " -n 1 -r
+read -p "Create desktop entry for application launcher? [Y/n] " -n 1 -r < /dev/tty
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
     desktop_file=~/.local/share/applications/wirelesssgx.desktop
