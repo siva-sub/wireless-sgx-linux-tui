@@ -141,12 +141,20 @@ class SuccessScreen(Screen):
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
-        if event.button.id == "manual":
-            self.show_manual_instructions()
-        elif event.button.id == "view-creds":
-            self.app.push_screen("credentials")
-        elif event.button.id == "done":
-            self.app.exit()
+        try:
+            if event.button.id == "manual":
+                self.show_manual_instructions()
+            elif event.button.id == "view-creds":
+                self.app.push_screen("credentials")
+            elif event.button.id == "done":
+                self.app.exit()
+        except Exception as e:
+            # Log error but don't crash
+            try:
+                status = self.query_one("#network-status")
+                status.update(f"❌ Error: {str(e)}", classes="error-status")
+            except:
+                pass
     
     async def configure_network(self) -> None:
         """Configure network automatically"""

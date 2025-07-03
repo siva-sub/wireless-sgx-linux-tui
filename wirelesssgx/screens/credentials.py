@@ -154,9 +154,12 @@ class CredentialsScreen(Screen):
                     pass
                 
                 # Enable buttons
-                self.query_one("#connect").disabled = False
-                self.query_one("#test").disabled = False
-                self.query_one("#delete").disabled = False
+                try:
+                    self.query_one("#connect").disabled = False
+                    self.query_one("#test").disabled = False
+                    self.query_one("#delete").disabled = False
+                except Exception:
+                    pass
             else:
                 # No credentials found
                 display_container.mount(
@@ -169,9 +172,12 @@ class CredentialsScreen(Screen):
                 )
                 
                 # Disable buttons
-                self.query_one("#connect").disabled = True
-                self.query_one("#test").disabled = True
-                self.query_one("#delete").disabled = True
+                try:
+                    self.query_one("#connect").disabled = True
+                    self.query_one("#test").disabled = True
+                    self.query_one("#delete").disabled = True
+                except Exception:
+                    pass
                 
         except Exception as e:
             display_container.mount(
@@ -180,14 +186,29 @@ class CredentialsScreen(Screen):
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
-        if event.button.id == "back":
-            self.app.pop_screen()
-        elif event.button.id == "connect":
-            asyncio.create_task(self.connect_now())
-        elif event.button.id == "test":
-            asyncio.create_task(self.test_connection())
-        elif event.button.id == "delete":
-            asyncio.create_task(self.delete_credentials())
+        try:
+            if event.button.id == "back":
+                self.app.pop_screen()
+            elif event.button.id == "connect":
+                if self.credentials:
+                    asyncio.create_task(self.connect_now())
+                else:
+                    status = self.query_one("#status", Static)
+                    status.update("❌ No credentials to connect with", classes="error-status")
+            elif event.button.id == "test":
+                asyncio.create_task(self.test_connection())
+            elif event.button.id == "delete":
+                if self.credentials:
+                    asyncio.create_task(self.delete_credentials())
+                else:
+                    status = self.query_one("#status", Static)
+                    status.update("❌ No credentials to delete", classes="error-status")
+        except Exception as e:
+            try:
+                status = self.query_one("#status", Static)
+                status.update(f"❌ Error: {str(e)}", classes="error-status")
+            except:
+                pass
     
     async def connect_now(self) -> None:
         """Connect using saved credentials"""
@@ -250,7 +271,14 @@ class CredentialsScreen(Screen):
     async def delete_credentials(self) -> None:
         """Delete saved credentials with confirmation"""
         # For simplicity, we'll delete directly. In a real app, you'd want a confirmation dialog
-        status = self.query_one("#status", Static)
+        try:
+            status = self.query_one("#status", Static)
+        except:
+            return
+            
+        if not self.credentials:
+            status.update("❌ No credentials to delete", classes="error-status")
+            return
         
         try:
             # Delete credentials
@@ -262,7 +290,6 @@ class CredentialsScreen(Screen):
             if deleted:
                 # Also try to remove network configuration
                 try:
-                    import subprocess
                     subprocess.run(
                         ["nmcli", "connection", "delete", "Wireless@SGx"],
                         capture_output=True
@@ -271,6 +298,9 @@ class CredentialsScreen(Screen):
                     pass
                 
                 status.update("✅ Credentials deleted successfully", classes="success-status")
+                
+                # Clear the stored credentials
+                self.credentials = None
                 
                 # Reload display
                 await self.load_credentials()
