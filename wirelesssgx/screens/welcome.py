@@ -70,15 +70,21 @@ class WelcomeScreen(Screen):
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
-        button_id = event.button.id
-        
-        if button_id == "new-registration":
-            self.app.push_screen("register", retrieve_mode=False)
-        elif button_id == "retrieve-account":
-            self.app.push_screen("register", retrieve_mode=True)
-        elif button_id == "auto-connect":
-            self.app.action_auto_connect()
-        elif button_id == "manage-credentials":
-            self.app.push_screen("credentials")
-        elif button_id == "exit":
-            self.app.exit()
+        try:
+            button_id = event.button.id
+            
+            if button_id == "new-registration":
+                self.app.push_screen("register", retrieve_mode=False)
+            elif button_id == "retrieve-account":
+                self.app.push_screen("register", retrieve_mode=True)
+            elif button_id == "auto-connect":
+                self.app.action_auto_connect()
+            elif button_id == "manage-credentials":
+                self.app.push_screen("credentials")
+            elif button_id == "exit":
+                self.app.exit()
+        except Exception as e:
+            # Log error but don't crash
+            if hasattr(self.app, 'log'):
+                self.app.log.error(f"Error handling button press: {str(e)}")
+            self.app.bell()
