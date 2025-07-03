@@ -92,7 +92,7 @@ class OTPScreen(Screen):
         yield Container(
             Vertical(
                 Static("📱 Enter OTP", id="title"),
-                Static(f"OTP has been sent to {self.registration_data['mobile']}", id="status"),
+                Static(f"OTP has been sent to {self.registration_data['mobile'].lstrip('65')}", id="status"),
                 Static(self._format_time(), id="timer"),
                 Vertical(
                     Label("Enter 6-digit OTP:"),
@@ -168,7 +168,7 @@ class OTPScreen(Screen):
             
             error_msg.update("")
             self.query_one("#status").update(
-                f"✅ OTP sent to {self.registration_data['mobile']}"
+                f"✅ OTP sent to {self.registration_data['mobile'].lstrip('65')}"
             )
             
             # Reset timer

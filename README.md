@@ -66,7 +66,7 @@ curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/mast
    - **Auto-Connect**: If you have saved credentials
 
 3. **Enter your details**:
-   - Phone number (Singapore mobile)
+   - Phone number (8-digit Singapore mobile, e.g., 9XXXXXXX)
    - Date of birth (DDMMYYYY format)
    - Select your ISP (Singtel/Starhub)
 

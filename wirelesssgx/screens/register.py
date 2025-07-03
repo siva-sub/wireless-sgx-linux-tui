@@ -76,12 +76,12 @@ class RegisterScreen(Screen):
                     id="title"
                 ),
                 Vertical(
-                    Label("Mobile Number (65XXXXXXXX):"),
+                    Label("Mobile Number (8 digits):"),
                     Input(
-                        placeholder="Enter Singapore mobile number",
+                        placeholder="e.g. 9XXXXXXX",
                         id="mobile",
                         validators=[
-                            Regex(r"^65[0-9]{8}$", failure_description="Must be Singapore number (65XXXXXXXX)")
+                            Regex(r"^[0-9]{8}$", failure_description="Must be 8-digit Singapore mobile number")
                         ]
                     ),
                     classes="field-group"
@@ -157,8 +157,13 @@ class RegisterScreen(Screen):
             return
         
         # All valid, proceed to OTP screen
+        # Add Singapore country code if not present
+        mobile_number = mobile_input.value
+        if not mobile_number.startswith("65"):
+            mobile_number = "65" + mobile_number
+            
         registration_data = {
-            "mobile": mobile_input.value,
+            "mobile": mobile_number,
             "dob": dob_input.value,
             "isp": isp_select.value.lower(),
             "retrieve_mode": self.retrieve_mode
