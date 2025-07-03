@@ -6,6 +6,11 @@ from textual.widgets import Static, Button, Header, Footer, Input, Select, Label
 from textual.screen import Screen
 from textual.validation import Regex
 import re
+import logging
+import os
+
+logger = logging.getLogger('wirelesssgx.register')
+DEBUG_MODE = os.environ.get('WIRELESSSGX_DEBUG', '').lower() in ('1', 'true', 'yes', 'on')
 
 
 class RegisterScreen(Screen):
@@ -123,9 +128,16 @@ class RegisterScreen(Screen):
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
+        if DEBUG_MODE:
+            logger.info(f"RegisterScreen button pressed: {event.button.id}")
+        
         if event.button.id == "back":
+            if DEBUG_MODE:
+                logger.info("Going back to previous screen")
             await self.app.pop_screen()
         elif event.button.id == "continue":
+            if DEBUG_MODE:
+                logger.info("Validating and continuing to OTP screen")
             await self.validate_and_continue()
     
     async def validate_and_continue(self) -> None:
