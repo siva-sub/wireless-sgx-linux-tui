@@ -24,7 +24,7 @@ wirelesssgx
 
 ### Option 2: One-Line Installer
 ```bash
-curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/siva-sub/wireless-sgx-linux-tui/master/install.sh | bash
 ```
 
 ### Option 3: Install from Source
