@@ -74,6 +74,9 @@ class WirelessSGXApp(App):
     
     SCREENS = {
         "welcome": WelcomeScreen,
+        "register": RegisterScreen,
+        "otp": OTPScreen,
+        "success": SuccessScreen,
         "manual_instructions": ManualInstructionsScreen,
     }
     
@@ -120,14 +123,9 @@ class WirelessSGXApp(App):
     
     def push_screen(self, screen: str | Screen, **kwargs) -> None:
         """Push a screen with parameters"""
-        if screen == "register":
-            self._push_screen(RegisterScreen(**kwargs))
-        elif screen == "otp":
-            self._push_screen(OTPScreen(**kwargs))
-        elif screen == "success":
-            self._push_screen(SuccessScreen(**kwargs))
-        elif screen == "manual_instructions":
-            self._push_screen(ManualInstructionsScreen(**kwargs))
+        if isinstance(screen, str) and screen in self.SCREENS:
+            screen_instance = self.SCREENS[screen](**kwargs)
+            super().push_screen(screen_instance)
         else:
             super().push_screen(screen)
 
