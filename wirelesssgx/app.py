@@ -93,16 +93,14 @@ class WirelessSGXApp(App):
     
     def action_auto_connect(self) -> None:
         """Auto-connect with saved credentials"""
-        asyncio.create_task(self._auto_connect())
+        # Use Textual's call_later to ensure proper async context
+        self.call_later(self._auto_connect_sync)
     
-    async def _auto_connect(self) -> None:
-        """Attempt to auto-connect with saved credentials"""
+    def _auto_connect_sync(self) -> None:
+        """Synchronous wrapper for auto-connect"""
         try:
-            # Check for saved credentials
-            creds = await asyncio.get_event_loop().run_in_executor(
-                None,
-                self.storage.get_credentials
-            )
+            # Check for saved credentials synchronously
+            creds = self.storage.get_credentials()
             
             if not creds:
                 # No saved credentials
@@ -118,36 +116,58 @@ class WirelessSGXApp(App):
             self.push_screen("autoconnect", credentials=creds)
             
         except Exception as e:
-            # Handle any errors gracefully
+            # Handle any errors gracefully with detailed error info
+            import traceback
+            error_details = traceback.format_exc()
             self.push_screen(
                 "manual_instructions", 
                 instructions=f"❌ Error during auto-connect:\n\n{str(e)}\n\n"
+                           f"Error Type: {type(e).__name__}\n\n"
+                           f"Details:\n{error_details}\n\n"
                            "Please try again or use manual connection methods."
             )
+    
     
     def push_screen(self, screen: str | Screen, **kwargs) -> None:
         """Push a screen with parameters"""
         try:
             if isinstance(screen, str):
                 if screen in self.SCREENS:
-                    screen_instance = self.SCREENS[screen](**kwargs)
+                    # Debug: Log screen instantiation
+                    if hasattr(self, 'log'):
+                        self.log.info(f"Creating screen '{screen}' with kwargs: {kwargs}")
+                    
+                    screen_class = self.SCREENS[screen]
+                    
+                    # Special handling for screens that need parameters
+                    if screen == "autoconnect" and "credentials" not in kwargs:
+                        raise ValueError("AutoConnectScreen requires 'credentials' parameter")
+                    
+                    screen_instance = screen_class(**kwargs)
                     super().push_screen(screen_instance)
                 else:
                     # Screen not found, show error
                     self.bell()
                     if hasattr(self, 'log'):
                         self.log.error(f"Screen '{screen}' not found in SCREENS dictionary")
+                    raise ValueError(f"Unknown screen: {screen}")
             else:
                 super().push_screen(screen)
         except Exception as e:
             # Handle any errors during screen creation or pushing
+            import traceback
+            error_trace = traceback.format_exc()
+            
             self.bell()
             if hasattr(self, 'log'):
-                self.log.error(f"Error pushing screen: {str(e)}")
+                self.log.error(f"Error pushing screen: {str(e)}\n{error_trace}")
+            
             # Try to show error in manual instructions screen
             try:
                 error_screen = ManualInstructionsScreen(
                     instructions=f"❌ Error loading screen:\n\n{str(e)}\n\n"
+                               f"Error Type: {type(e).__name__}\n\n"
+                               f"Stack Trace:\n{error_trace}\n\n"
                                "Please report this issue if it persists."
                 )
                 super().push_screen(error_screen)
