@@ -2,7 +2,7 @@
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
-from textual.widgets import Static, Button
+from textual.widgets import Static, Button, LoadingIndicator
 from textual.screen import Screen
 import asyncio
 from typing import Dict
@@ -35,18 +35,27 @@ class AutoConnectScreen(Screen):
     .success { color: $success; }
     .error { color: $error; }
     .info { color: $primary; }
+    
+    #loading {
+        margin: 1 0;
+        align: center middle;
+    }
     """
     
     def __init__(self, credentials: Dict[str, str]):
         super().__init__()
         self.credentials = credentials
         self.network_manager = NetworkManager()
+        # Ensure we have required fields
+        if not credentials or 'username' not in credentials or 'password' not in credentials:
+            self.credentials = {'username': 'Unknown', 'password': ''}
         
     def compose(self) -> ComposeResult:
         yield Container(
             Vertical(
                 Static("🔄 Auto-Connect", style="text-align: center; font-weight: bold; margin-bottom: 2;"),
                 Static(f"Using saved credentials for: {self.credentials['username']}", style="text-align: center; margin-bottom: 2;"),
+                LoadingIndicator(id="loading"),
                 Static("Configuring network...", id="status-text", classes="info"),
                 Button("Back", id="back", style="margin-top: 2;"),
                 id="status-container"
@@ -61,6 +70,7 @@ class AutoConnectScreen(Screen):
         """Perform the auto-connect"""
         try:
             status = self.query_one("#status-text", Static)
+            loading = self.query_one("#loading", LoadingIndicator)
         except Exception:
             return
         
@@ -75,6 +85,7 @@ class AutoConnectScreen(Screen):
             
             if success:
                 status.update("✅ Network configured! Attempting to connect...", classes="success")
+                loading.display = False  # Hide loading indicator
                 
                 # Try to connect with nmcli
                 try:
@@ -91,15 +102,26 @@ class AutoConnectScreen(Screen):
                     
                     if result.returncode == 0:
                         status.update("✅ Successfully connected to Wireless@SGx!", classes="success")
+                        await asyncio.sleep(2)  # Show success message for 2 seconds
+                        self.app.pop_screen()  # Return to welcome screen
                     else:
                         status.update("✅ Network configured. Will connect when in range.", classes="success")
+                        await asyncio.sleep(2)  # Show message for 2 seconds
+                        self.app.pop_screen()  # Return to welcome screen
                 except Exception:
                     status.update("✅ Network configured. Will connect when in range.", classes="success")
+                    await asyncio.sleep(2)  # Show message for 2 seconds
+                    self.app.pop_screen()  # Return to welcome screen
             else:
                 status.update("❌ Failed to configure network", classes="error")
+                await asyncio.sleep(2)  # Show error message for 2 seconds
                 
         except Exception as e:
-            status.update(f"❌ Error: {str(e)}", classes="error")
+            try:
+                status.update(f"❌ Error: {str(e)}", classes="error")
+                await asyncio.sleep(2)  # Show error message for 2 seconds
+            except:
+                pass
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses"""
