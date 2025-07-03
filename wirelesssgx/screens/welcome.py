@@ -59,6 +59,7 @@ class WelcomeScreen(Screen):
                     Button("New Registration", variant="primary", id="new-registration"),
                     Button("Retrieve Existing Account", variant="default", id="retrieve-account"),
                     Button("Auto-Connect (Saved Credentials)", variant="success", id="auto-connect"),
+                    Button("Manage Credentials", variant="default", id="manage-credentials"),
                     Button("Exit", variant="error", id="exit"),
                     id="button-container"
                 ),
@@ -77,5 +78,7 @@ class WelcomeScreen(Screen):
             self.app.push_screen("register", retrieve_mode=True)
         elif button_id == "auto-connect":
             self.app.action_auto_connect()
+        elif button_id == "manage-credentials":
+            self.app.push_screen("credentials")
         elif button_id == "exit":
             self.app.exit()

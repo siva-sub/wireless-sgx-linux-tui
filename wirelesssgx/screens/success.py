@@ -109,7 +109,8 @@ class SuccessScreen(Screen):
         yield Footer()
     
     async def on_mount(self) -> None:
-        """Save credentials on mount"""
+        """Save credentials and auto-connect on mount"""
+        # First save credentials
         try:
             saved = await asyncio.get_event_loop().run_in_executor(
                 None,
@@ -121,8 +122,16 @@ class SuccessScreen(Screen):
             
             if saved:
                 self.query_one("#network-status").update(
-                    "💾 Credentials saved securely",
+                    "💾 Credentials saved securely. Auto-connecting...",
                     classes="info-status"
+                )
+                # Auto-connect after saving
+                await asyncio.sleep(1)
+                await self.configure_network()
+            else:
+                self.query_one("#network-status").update(
+                    "⚠️ Could not save credentials",
+                    classes="error-status"
                 )
         except Exception as e:
             self.query_one("#network-status").update(

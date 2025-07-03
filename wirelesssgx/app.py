@@ -7,7 +7,7 @@ from textual.containers import Container, Vertical
 import asyncio
 from typing import Dict, Optional
 
-from .screens import WelcomeScreen, RegisterScreen, OTPScreen, SuccessScreen
+from .screens import WelcomeScreen, RegisterScreen, OTPScreen, SuccessScreen, CredentialsScreen
 from .storage import SecureStorage
 from .network import NetworkManager
 
@@ -78,6 +78,7 @@ class WirelessSGXApp(App):
         "otp": OTPScreen,
         "success": SuccessScreen,
         "manual_instructions": ManualInstructionsScreen,
+        "credentials": CredentialsScreen,
     }
     
     def __init__(self):
@@ -103,23 +104,101 @@ class WirelessSGXApp(App):
         
         if not creds:
             # No saved credentials
-            await self.push_screen_wait(
-                Screen(
-                    Container(
-                        Vertical(
-                            Static("❌ No saved credentials found!", style="color: red; text-align: center;"),
-                            Static("Please register or retrieve your account first.", style="text-align: center; margin-top: 1;"),
-                            Static("[Press any key to continue]", style="text-align: center; margin-top: 2;"),
-                            align="center middle"
-                        ),
-                        align="center middle"
-                    )
-                )
+            self.push_screen(
+                "manual_instructions",
+                instructions="❌ No saved credentials found!\n\n"
+                           "Please use 'New Registration' or 'Retrieve Existing Account'\n"
+                           "to set up your Wireless@SGx account first."
             )
             return
         
-        # Show success screen with saved credentials
-        self.push_screen("success", credentials=creds)
+        # Create auto-connect status screen
+        class AutoConnectScreen(Screen):
+            CSS = """
+            AutoConnectScreen {
+                align: center middle;
+            }
+            
+            #status-container {
+                width: 60;
+                height: auto;
+                border: thick $background 80%;
+                background: $surface;
+                padding: 2 4;
+                align: center middle;
+            }
+            
+            #status-text {
+                text-align: center;
+                margin-bottom: 2;
+            }
+            
+            .success { color: $success; }
+            .error { color: $error; }
+            .info { color: $primary; }
+            """
+            
+            def __init__(self, credentials: Dict[str, str]):
+                super().__init__()
+                self.credentials = credentials
+                self.network_manager = NetworkManager()
+                
+            def compose(self) -> ComposeResult:
+                yield Container(
+                    Vertical(
+                        Static("🔄 Auto-Connect", style="text-align: center; font-weight: bold; margin-bottom: 2;"),
+                        Static(f"Using saved credentials for: {self.credentials['username']}", style="text-align: center; margin-bottom: 2;"),
+                        Static("Configuring network...", id="status-text", classes="info"),
+                        Button("Back", id="back", style="margin-top: 2;"),
+                        id="status-container"
+                    )
+                )
+            
+            async def on_mount(self) -> None:
+                """Start auto-connect process"""
+                status = self.query_one("#status-text", Static)
+                
+                try:
+                    # Configure network
+                    success = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        self.network_manager.configure_network,
+                        self.credentials["username"],
+                        self.credentials["password"]
+                    )
+                    
+                    if success:
+                        status.update("✅ Network configured! Attempting to connect...", classes="success")
+                        
+                        # Try to connect with nmcli
+                        try:
+                            import subprocess
+                            await asyncio.sleep(1)
+                            result = await asyncio.get_event_loop().run_in_executor(
+                                None,
+                                subprocess.run,
+                                ["nmcli", "connection", "up", "Wireless@SGx"],
+                                {"capture_output": True, "text": True}
+                            )
+                            
+                            if result.returncode == 0:
+                                status.update("✅ Successfully connected to Wireless@SGx!", classes="success")
+                            else:
+                                status.update("✅ Network configured. Will connect when in range.", classes="success")
+                        except:
+                            status.update("✅ Network configured. Will connect when in range.", classes="success")
+                    else:
+                        status.update("❌ Failed to configure network", classes="error")
+                        
+                except Exception as e:
+                    status.update(f"❌ Error: {str(e)}", classes="error")
+            
+            def on_button_pressed(self, event: Button.Pressed) -> None:
+                if event.button.id == "back":
+                    self.app.pop_screen()
+        
+        # Show auto-connect screen
+        self.push_screen(AutoConnectScreen(creds))
     
     def push_screen(self, screen: str | Screen, **kwargs) -> None:
         """Push a screen with parameters"""
