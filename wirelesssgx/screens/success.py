@@ -77,7 +77,7 @@ class SuccessScreen(Screen):
     }
     """
     
-    def __init__(self, credentials: Dict[str, str]):
+    def __init__(self, *, credentials: Dict[str, str]):
         super().__init__()
         self.credentials = credentials
         self.network_manager = NetworkManager()

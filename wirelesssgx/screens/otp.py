@@ -79,7 +79,7 @@ class OTPScreen(Screen):
     
     time_remaining = reactive(300)  # 5 minutes
     
-    def __init__(self, registration_data: Dict):
+    def __init__(self, *, registration_data: Dict):
         super().__init__()
         self.registration_data = registration_data
         self.client = WirelessSGXClient(registration_data["isp"])

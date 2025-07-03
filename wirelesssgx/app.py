@@ -40,7 +40,7 @@ class ManualInstructionsScreen(Screen):
     }
     """
     
-    def __init__(self, instructions: str):
+    def __init__(self, *, instructions: str):
         super().__init__()
         self.instructions = instructions
         

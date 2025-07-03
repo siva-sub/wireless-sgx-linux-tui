@@ -63,7 +63,7 @@ class RegisterScreen(Screen):
     }
     """
     
-    def __init__(self, retrieve_mode: bool = False):
+    def __init__(self, *, retrieve_mode: bool = False):
         super().__init__()
         self.retrieve_mode = retrieve_mode
         
