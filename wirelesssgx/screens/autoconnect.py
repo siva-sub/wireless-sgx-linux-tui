@@ -79,6 +79,8 @@ class AutoConnectScreen(Screen):
     
     async def on_mount(self) -> None:
         """Start auto-connect process"""
+        # Set a maximum timeout to ensure screen closes
+        self.set_timer(10, self.dismiss)  # Auto-close after 10 seconds max
         await self.auto_connect()
     
     async def auto_connect(self) -> None:
@@ -100,7 +102,10 @@ class AutoConnectScreen(Screen):
             
             if success:
                 status.update("✅ Network configured! Attempting to connect...", classes="success")
-                loading.display = False  # Hide loading indicator
+                try:
+                    loading.remove()  # Hide loading indicator
+                except:
+                    pass
                 
                 # Try to connect with nmcli
                 try:
@@ -118,15 +123,15 @@ class AutoConnectScreen(Screen):
                     if result.returncode == 0:
                         status.update("✅ Successfully connected to Wireless@SGx!", classes="success")
                         await asyncio.sleep(2)  # Show success message for 2 seconds
-                        self.app.pop_screen()  # Return to welcome screen
+                        self.dismiss()  # Return to welcome screen
                     else:
                         status.update("✅ Network configured. Will connect when in range.", classes="success")
                         await asyncio.sleep(2)  # Show message for 2 seconds
-                        self.app.pop_screen()  # Return to welcome screen
+                        self.dismiss()  # Return to welcome screen
                 except Exception:
                     status.update("✅ Network configured. Will connect when in range.", classes="success")
                     await asyncio.sleep(2)  # Show message for 2 seconds
-                    self.app.pop_screen()  # Return to welcome screen
+                    self.dismiss()  # Return to welcome screen
             else:
                 status.update("❌ Failed to configure network", classes="error")
                 await asyncio.sleep(2)  # Show error message for 2 seconds
@@ -142,6 +147,6 @@ class AutoConnectScreen(Screen):
         """Handle button presses"""
         try:
             if event.button.id == "back":
-                self.app.pop_screen()
+                self.dismiss()
         except Exception:
             pass

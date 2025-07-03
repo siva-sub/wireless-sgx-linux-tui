@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wirelesssgx"
-version = "1.0.15"
+version = "1.0.16"
 description = "A modern TUI for Wireless@SGx setup on Linux"
 readme = "README.md"
 requires-python = ">=3.8"
