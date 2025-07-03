@@ -188,7 +188,7 @@ class OTPScreen(Screen):
         if event.button.id == "back":
             self.app.pop_screen()
         elif event.button.id == "verify":
-            self.verify_otp()
+            asyncio.create_task(self.verify_otp())
         elif event.button.id == "resend":
             asyncio.create_task(self.request_otp())
     

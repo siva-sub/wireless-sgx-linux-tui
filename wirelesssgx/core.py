@@ -15,13 +15,13 @@ ISP_CONFIG = {
         "essa_url": "https://singtel-wsg.singtel.com/essa_r12",
         "api_password": "",
         "create_api_versions": ("2.6", "2.8"),
-        "retrieve_api_versions": ("2.0", "2.6")
+        "retrieve_api_versions": ("1.9", "2.6")
     },
     "starhub": {
         "essa_url": "https://api.wifi.starhub.net.sg/essa_r12",
         "api_password": "5t4rHUB4p1",
         "create_api_versions": ("2.6", "2.8"),
-        "retrieve_api_versions": ("2.0", "2.6")
+        "retrieve_api_versions": ("1.9", "2.6")
     },
 }
 
