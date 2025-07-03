@@ -78,9 +78,9 @@ class WirelessSGXClient:
             raise ServerError(f"Server error (code {rc}): {msg}")
     
     def request_registration(self, mobile: str, dob: str, 
-                           salutation: str = "Dr", name: str = "User",
-                           gender: str = "f", country: str = "SG",
-                           email: str = "user@example.com",
+                           salutation: str = "Mr", name: str = "Some Person",
+                           gender: str = "m", country: str = "SG",
+                           email: str = "nonexistent@noaddresshere.com",
                            retrieve_mode: bool = False) -> str:
         """Request registration/retrieve and return success code"""
         
@@ -100,6 +100,11 @@ class WirelessSGXClient:
             "tid": self.transid,
         }
         
+        # Debug logging
+        import json
+        print(f"DEBUG: Making request to {self.config['essa_url']}")
+        print(f"DEBUG: With params: {json.dumps({k: v for k, v in params.items() if k != 'api_password'}, indent=2)}")
+        
         try:
             r = requests.get(self.config["essa_url"], params=params, timeout=30)
             r.raise_for_status()
@@ -108,6 +113,7 @@ class WirelessSGXClient:
         
         try:
             resp = r.json()
+            print(f"DEBUG: Response: {json.dumps(resp, indent=2)}")
         except ValueError:
             raise ValidationError("Invalid JSON response from server")
         

@@ -162,7 +162,7 @@ class OTPScreen(Screen):
                 self.client.request_registration,
                 self.registration_data["mobile"],
                 self.registration_data["dob"],
-                "Dr", "User", "f", "SG", "user@example.com",
+                "Mr", "Some Person", "m", "SG", "nonexistent@noaddresshere.com",
                 self.registration_data["retrieve_mode"]
             )
             
